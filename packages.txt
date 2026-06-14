@@ -1,10 +1,8 @@
 chromium
 xvfb
-libxss1
 libnss3
 libatk-bridge2.0-0
 libdrm2
 libxkbcommon0
 libgbm1
-libasound2
 libgtk-3-0
