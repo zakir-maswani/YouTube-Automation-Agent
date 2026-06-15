@@ -237,7 +237,10 @@ def parse_json_dict(raw: str) -> dict:
 
 
 async def run_search(llm, query, max_results, filter_by):
-    from browser_use import Agent, BrowserConfig, Browser
+    #from browser_use import Agent, BrowserConfig, Browser
+    from browser_use.agent.service import Agent
+    from browser_use.browser.browser import Browser
+    from browser_use.browser.config import BrowserConfig
     filter_map = {
         "Upload Date" : "Upload date",
         "View Count"  : "View count",
@@ -281,7 +284,10 @@ async def run_search(llm, query, max_results, filter_by):
 
 
 async def run_ai_picks(llm, topic, top_n, criteria):
-    from browser_use import Agent, BrowserConfig, Browser
+    #from browser_use import Agent, BrowserConfig, Browser
+    from browser_use.agent.service import Agent
+    from browser_use.browser.browser import Browser
+    from browser_use.browser.config import BrowserConfig
     task = f"""
     Go to https://www.youtube.com, search for "{topic}",
     click Filters → Sort by "Upload date", scroll through 15+ results,
@@ -313,7 +319,10 @@ async def run_ai_picks(llm, topic, top_n, criteria):
 
 
 async def run_summary(llm, url):
-    from browser_use import Agent, BrowserConfig, Browser
+    #from browser_use import Agent, BrowserConfig, Browser
+    from browser_use.agent.service import Agent
+    from browser_use.browser.browser import Browser
+    from browser_use.browser.config import BrowserConfig
     task = f"""
     Open this YouTube video: {url}
     Extract and return as JSON:
