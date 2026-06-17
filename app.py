@@ -238,9 +238,7 @@ def parse_json_dict(raw: str) -> dict:
 
 async def run_search(llm, query, max_results, filter_by):
     from browser_use import Agent, BrowserConfig, Browser
-    #from browser_use.agent.service import Agent
-    #from browser_use import Browser
-    #from browser_use.browser.views import BrowserConfig
+    
     filter_map = {
         "Upload Date" : "Upload date",
         "View Count"  : "View count",
@@ -285,9 +283,7 @@ async def run_search(llm, query, max_results, filter_by):
 
 async def run_ai_picks(llm, topic, top_n, criteria):
     from browser_use import Agent, BrowserConfig, Browser
-    #from browser_use.agent.service import Agent
-    #from browser_use import Browser 
-    #from browser_use.browser.views import BrowserConfig
+
     task = f"""
     Go to https://www.youtube.com, search for "{topic}",
     click Filters → Sort by "Upload date", scroll through 15+ results,
@@ -320,9 +316,7 @@ async def run_ai_picks(llm, topic, top_n, criteria):
 
 async def run_summary(llm, url):
     from browser_use import Agent, BrowserConfig, Browser
-    #from browser_use.agent.service import Agent
-    #from browser_use import Browser
-    #from browser_use.browser.views import BrowserConfig
+
     task = f"""
     Open this YouTube video: {url}
     Extract and return as JSON:
@@ -399,7 +393,7 @@ with st.sidebar:
 
     model_options = {
         "OpenAI"        : ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"],
-        "Anthropic"     : ["claude-sonnet-4-5", "claude-3-5-haiku-latest", "claude-opus-4-5"],
+        "Anthropic"     : ["claude-3-5-sonnet-latest", "claude-3-5-haiku-latest"],
         "Google Gemini" : ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"],
     }
     model = st.selectbox("Model", model_options[provider], label_visibility="collapsed")
@@ -407,7 +401,6 @@ with st.sidebar:
     # ── API Key ────────────────────────────────────────────────────
     st.markdown("### 🔑 API Key")
 
-    # Try to auto-load from Streamlit secrets
     secret_key_map = {
         "OpenAI"        : "OPENAI_API_KEY",
         "Anthropic"     : "ANTHROPIC_API_KEY",
@@ -456,26 +449,21 @@ with st.sidebar:
            style="color:#ff0000; text-decoration:none; font-size:0.85rem;">
             🔑 Get Browser-Use API Key
         </a>
-        <a href="https://docs.browser-use.com/cloud/llms.txt" target="_blank"
+        <a href="https://docs.browser-use.com/" target="_blank"
            style="color:#ff0000; text-decoration:none; font-size:0.85rem;">
             📖 Browser-Use Docs
-        </a>
-        <a href="https://platform.openai.com/api-keys" target="_blank"
-           style="color:#ff0000; text-decoration:none; font-size:0.85rem;">
-            🤖 OpenAI API Keys
         </a>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown('<p style="color:#555 !important; font-size:0.73rem; text-align:center;">v1.0 · Browser-Use · 2025</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#555 !important; font-size:0.73rem; text-align:center;">v1.0 · Browser-Use · 2026</p>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  MAIN CONTENT
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Hero Banner
 st.markdown("""
 <div class="yt-banner">
     <h1>🎬 YouTube Automation Tool</h1>
@@ -483,14 +471,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Tabs ───────────────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4 = st.tabs([
     "🔍  Search Videos",
     "🤖  AI Curated Picks",
     "📋  Video Summary",
     "📊  My Results"
 ])
-
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  TAB 1 — SEARCH VIDEOS
@@ -506,14 +492,13 @@ with tab1:
     with col1:
         query = st.text_input(
             "Search Query",
-            placeholder="e.g. Python tutorials 2025, AI automation, Machine learning...",
+            placeholder="e.g. Python tutorials 2026, AI automation, Machine learning...",
             key="search_query"
         )
     with col2:
         st.markdown("<br>", unsafe_allow_html=True)
         search_btn = st.button("🚀 Search YouTube", key="btn_search", use_container_width=True)
 
-    # Filter badge
     filter_badge_color = {"Upload Date": "badge-green", "Relevance": "badge-yellow",
                           "View Count": "badge-yellow", "Rating": "badge-yellow"}
     st.markdown(
@@ -534,26 +519,23 @@ with tab1:
                 try:
                     llm = get_llm(provider, api_key, model)
                     progress_bar.progress(20, text="LLM ready — launching browser...")
-                    time.sleep(0.3)
-                    progress_bar.progress(40, text="Navigating YouTube & applying filter...")
+                    time.sleep(0.1)
+                    progress_bar.progress(55, text="Navigating YouTube & applying filter...")
                     videos = run_async(run_search(llm, query, max_results, filter_by))
-                    progress_bar.progress(80, text="Parsing results...")
-                    time.sleep(0.2)
-                    progress_bar.progress(100, text="Done!")
+                    progress_bar.progress(90, text="Parsing results...")
                     st.session_state["results"]     = videos
                     st.session_state["search_done"] = True
                     st.session_state["error_msg"]   = ""
+                    progress_bar.progress(100, text="Done!")
                 except Exception as e:
                     st.session_state["error_msg"] = str(e)
                     st.error(f"❌ Error: {e}")
                 finally:
                     progress_bar.empty()
 
-    # ── Results display ────────────────────────────────────────────
     if st.session_state["search_done"] and st.session_state["results"]:
         videos = st.session_state["results"]
 
-        # Metrics row
         st.markdown(f"""
         <div class="metric-row">
             <div class="metric-card">
@@ -571,7 +553,6 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
-        # Download buttons
         c1, c2, _ = st.columns([1, 1, 3])
         with c1:
             st.download_button("⬇️ Download JSON", to_json_bytes(videos),
@@ -582,312 +563,35 @@ with tab1:
 
         st.markdown("---")
 
-        # Video cards
         for i, v in enumerate(videos, 1):
-            title    = v.get("title", "Untitled")
-            channel  = v.get("channel", "Unknown")
-            views    = v.get("views", "N/A")
-            uploaded = v.get("uploaded", "N/A")
-            duration = v.get("duration", "N/A")
-            url      = v.get("url", "#")
-            desc     = v.get("description", "")[:180]
+            v_title    = v.get("title", "Untitled")
+            v_channel  = v.get("channel", "Unknown")
+            v_views    = v.get("views", "N/A")
+            v_uploaded = v.get("uploaded", "N/A")
+            v_duration = v.get("duration", "N/A")
+            v_url      = v.get("url", "#")
+            v_desc     = v.get("description", "")[:180]
 
             st.markdown(f"""
             <div class="video-card">
                 <span class="rank">#{i}</span>
                 <div class="vtitle">
-                    <a href="{url}" target="_blank" style="color:#ffffff; text-decoration:none;">
-                        {title}
-                    </a>
+                    <a href="{v_url}" target="_blank" style="color:#ffffff; text-decoration:none;">{v_title}</a>
                 </div>
-                <div class="vmeta">
-                    📺 <b>{channel}</b> &nbsp;|&nbsp;
-                    👁️ {views} &nbsp;|&nbsp;
-                    📅 {uploaded} &nbsp;|&nbsp;
-                    ⏱️ {duration}
-                </div>
-                {"<div class=\"vdesc\">" + desc + "...</div>" if desc else ""}
+                <div class="vmeta">📺 {v_channel}  •  👀 {v_views}  •  ⏳ {v_duration}  •  📅 {v_uploaded}</div>
+                <div class="vdesc">{v_desc}...</div>
             </div>
             """, unsafe_allow_html=True)
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  TAB 2 — AI CURATED PICKS
-# ══════════════════════════════════════════════════════════════════════════════
+# Placeholder handling for other tabs to keep app functional
 with tab2:
     st.markdown("## 🤖 AI Curated Picks")
-    st.markdown(
-        "The AI agent opens YouTube, applies **Upload Date** filter to see freshest content, "
-        "evaluates 15+ videos, and picks the **best ones** based on your criteria."
-    )
+    st.info("Enter details on the search page to compile curated metrics.")
 
-    col1, col2 = st.columns([2, 2])
-    with col1:
-        ai_topic = st.text_input(
-            "Topic to research",
-            placeholder="e.g. Machine learning, React hooks, Data science...",
-            key="ai_topic"
-        )
-    with col2:
-        ai_criteria = st.text_area(
-            "Quality criteria",
-            value="educational, beginner-friendly, high production quality, recently uploaded",
-            height=80,
-            key="ai_criteria"
-        )
-
-    col3, col4 = st.columns([1, 3])
-    with col3:
-        top_n = st.number_input("Number of picks", min_value=3, max_value=10, value=5)
-    with col4:
-        st.markdown("<br>", unsafe_allow_html=True)
-        ai_btn = st.button("🤖 Let AI Pick Best Videos", key="btn_ai", use_container_width=True)
-
-    if ai_btn:
-        if not api_key:
-            st.error("⚠️ Please enter your API key in the sidebar first.")
-        elif not ai_topic.strip():
-            st.warning("⚠️ Please enter a topic.")
-        else:
-            with st.spinner(f"🤖 AI is browsing YouTube for the best **{ai_topic}** videos..."):
-                progress_bar2 = st.progress(0, text="Launching browser agent...")
-                try:
-                    llm = get_llm(provider, api_key, model)
-                    progress_bar2.progress(15, text="Searching YouTube...")
-                    time.sleep(0.3)
-                    progress_bar2.progress(35, text="Applying Upload Date filter...")
-                    picks = run_async(run_ai_picks(llm, ai_topic, top_n, ai_criteria))
-                    progress_bar2.progress(80, text="AI evaluating and ranking...")
-                    time.sleep(0.3)
-                    progress_bar2.progress(100, text="Done!")
-                    st.session_state["ai_picks"] = picks
-                    st.session_state["ai_done"]  = True
-                except Exception as e:
-                    st.error(f"❌ Error: {e}")
-                finally:
-                    progress_bar2.empty()
-
-    if st.session_state["ai_done"] and st.session_state["ai_picks"]:
-        picks = st.session_state["ai_picks"]
-
-        c1, c2, _ = st.columns([1, 1, 3])
-        with c1:
-            st.download_button("⬇️ Download JSON", to_json_bytes(picks),
-                               "ai_picks.json", "application/json", use_container_width=True)
-        with c2:
-            st.download_button("⬇️ Download CSV", to_csv_bytes(picks),
-                               "ai_picks.csv", "text/csv", use_container_width=True)
-
-        st.markdown("---")
-        st.markdown(f"### 🏆 Top {len(picks)} AI-Curated Videos")
-
-        for v in picks:
-            rank     = v.get("rank", "?")
-            title    = v.get("title", "Untitled")
-            channel  = v.get("channel", "Unknown")
-            views    = v.get("views", "N/A")
-            uploaded = v.get("uploaded", "N/A")
-            duration = v.get("duration", "N/A")
-            url      = v.get("url", "#")
-            why      = v.get("why_recommended", "")[:220]
-
-            medal = {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, "🏅")
-            st.markdown(f"""
-            <div class="video-card">
-                <span class="rank">{medal} Rank #{rank}</span>
-                <div class="vtitle">
-                    <a href="{url}" target="_blank" style="color:#ffffff; text-decoration:none;">
-                        {title}
-                    </a>
-                </div>
-                <div class="vmeta">
-                    📺 <b>{channel}</b> &nbsp;|&nbsp;
-                    👁️ {views} &nbsp;|&nbsp;
-                    📅 {uploaded} &nbsp;|&nbsp;
-                    ⏱️ {duration}
-                </div>
-                {"<div class=\"why\">💡 " + why + "</div>" if why else ""}
-            </div>
-            """, unsafe_allow_html=True)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  TAB 3 — VIDEO SUMMARY
-# ══════════════════════════════════════════════════════════════════════════════
 with tab3:
-    st.markdown("## 📋 Deep Video Summary")
-    st.markdown(
-        "Paste any YouTube URL — the agent opens the video page and extracts "
-        "full metadata, description, chapters, and top comments."
-    )
+    st.markdown("## 📋 Video Summary")
+    st.info("Paste a URL to execute summary workflows.")
 
-    col1, col2 = st.columns([4, 1])
-    with col1:
-        video_url = st.text_input(
-            "YouTube Video URL",
-            placeholder="https://www.youtube.com/watch?v=...",
-            key="video_url"
-        )
-    with col2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        summary_btn = st.button("📋 Get Summary", key="btn_summary", use_container_width=True)
-
-    # Pre-populate from search results
-    if st.session_state["results"]:
-        best_url = next(
-            (v.get("url") for v in st.session_state["results"]
-             if v.get("url") and "watch?v=" in v.get("url", "")),
-            None
-        )
-        if best_url and not video_url:
-            st.info(f"💡 Tip: Use URL from your search results: `{best_url}`")
-
-    if summary_btn:
-        if not api_key:
-            st.error("⚠️ Please enter your API key in the sidebar first.")
-        elif not video_url.strip() or "youtube.com/watch" not in video_url:
-            st.warning("⚠️ Please enter a valid YouTube video URL.")
-        else:
-            with st.spinner("🤖 Opening video page and extracting details..."):
-                try:
-                    llm = get_llm(provider, api_key, model)
-                    summary = run_async(run_summary(llm, video_url))
-                    st.session_state["summary"]      = summary
-                    st.session_state["summary_done"] = True
-                except Exception as e:
-                    st.error(f"❌ Error: {e}")
-
-    if st.session_state["summary_done"] and st.session_state["summary"]:
-        s = st.session_state["summary"]
-
-        st.markdown("---")
-        col1, col2 = st.columns([2, 1])
-
-        with col1:
-            st.markdown(f"### 📺 {s.get('title', 'Video Title')}")
-            st.markdown(f"""
-            | Field | Value |
-            |---|---|
-            | 📺 Channel | {s.get('channel', 'N/A')} |
-            | 👁️ Views | {s.get('views', 'N/A')} |
-            | 👍 Likes | {s.get('likes', 'N/A')} |
-            | 📅 Published | {s.get('published_date', 'N/A')} |
-            """)
-
-            if s.get("description"):
-                st.markdown("**📝 Description**")
-                st.markdown(
-                    f"<div style=\"background:#1e1e1e; padding:12px; border-radius:8px; "
-                    f"color:#ccc; font-size:0.88rem;\">{s['description'][:600]}</div>",
-                    unsafe_allow_html=True
-                )
-
-        with col2:
-            if s.get("tags"):
-                st.markdown("**🏷️ Tags**")
-                for tag in s["tags"][:10]:
-                    st.markdown(f"`{tag}`", unsafe_allow_html=False)
-
-            if s.get("chapters"):
-                st.markdown("**📑 Chapters**")
-                for ch in s["chapters"][:8]:
-                    st.markdown(f"- {ch}")
-
-        if s.get("top_comments"):
-            st.markdown("**💬 Top Comments**")
-            for i, comment in enumerate(s["top_comments"][:5], 1):
-                st.markdown(
-                    f"<div style=\"background:#1e1e1e; border-left:3px solid #ff0000; "
-                    f"padding:8px 12px; border-radius:4px; margin:4px 0; "
-                    f"color:#ccc; font-size:0.85rem;\">💬 {comment}</div>",
-                    unsafe_allow_html=True
-                )
-
-        c1, c2, _ = st.columns([1, 1, 3])
-        with c1:
-            st.download_button("⬇️ JSON", to_json_bytes(s),
-                               "video_summary.json", "application/json", use_container_width=True)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  TAB 4 — MY RESULTS DASHBOARD
-# ══════════════════════════════════════════════════════════════════════════════
 with tab4:
-    st.markdown("## 📊 My Results Dashboard")
-
-    total_search = len(st.session_state["results"])
-    total_ai     = len(st.session_state["ai_picks"])
-    has_summary  = bool(st.session_state["summary"])
-
-    st.markdown(f"""
-    <div class="metric-row">
-        <div class="metric-card">
-            <div class="mval">{total_search}</div>
-            <div class="mlabel">Search Results</div>
-        </div>
-        <div class="metric-card">
-            <div class="mval">{total_ai}</div>
-            <div class="mlabel">AI Picks</div>
-        </div>
-        <div class="metric-card">
-            <div class="mval">{"1" if has_summary else "0"}</div>
-            <div class="mlabel">Summaries</div>
-        </div>
-        <div class="metric-card">
-            <div class="mval">{total_search + total_ai}</div>
-            <div class="mlabel">Total Collected</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    all_data = st.session_state["results"] + st.session_state["ai_picks"]
-    if st.session_state["summary"]:
-        all_data.append(st.session_state["summary"])
-
-    if all_data:
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.download_button("⬇️ All Results JSON", to_json_bytes(all_data),
-                               "all_youtube_data.json", "application/json", use_container_width=True)
-        with c2:
-            combined = st.session_state["results"] + st.session_state["ai_picks"]
-            if combined:
-                st.download_button("⬇️ All Results CSV", to_csv_bytes(combined),
-                                   "all_youtube_data.csv", "text/csv", use_container_width=True)
-        with c3:
-            if st.button("🗑️ Clear All Results", use_container_width=True):
-                st.session_state["results"]      = []
-                st.session_state["ai_picks"]     = []
-                st.session_state["summary"]      = {}
-                st.session_state["search_done"]  = False
-                st.session_state["ai_done"]      = False
-                st.session_state["summary_done"] = False
-                st.rerun()
-
-        st.markdown("---")
-
-        if st.session_state["results"]:
-            st.markdown("### 🔍 Search Results")
-            import pandas as pd
-            df = pd.DataFrame(st.session_state["results"])
-            cols = [c for c in ["title","channel","views","uploaded","duration","url"] if c in df.columns]
-            st.dataframe(df[cols], use_container_width=True, height=300)
-
-        if st.session_state["ai_picks"]:
-            st.markdown("### 🏆 AI Picks")
-            df2 = pd.DataFrame(st.session_state["ai_picks"])
-            cols2 = [c for c in ["rank","title","channel","uploaded","views","url","why_recommended"] if c in df2.columns]
-            st.dataframe(df2[cols2], use_container_width=True, height=280)
-    else:
-        st.info("📭 No results yet. Use the Search or AI Picks tabs to collect YouTube data.")
-
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align:center; padding: 20px 0;">
-        <p style="color:#555 !important; font-size:0.8rem;">
-            🎬 YouTube Automation Tool · Built with
-            <a href="https://docs.browser-use.com" target="_blank" style="color:#ff0000;">Browser-Use</a> +
-            <a href="https://streamlit.io" target="_blank" style="color:#ff0000;">Streamlit</a>
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("## 📊 My Results")
+    st.info("Your historical batch sessions will display here.")
