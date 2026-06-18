@@ -33,7 +33,7 @@ git add .
 git commit -m "🎬 YouTube Automation Tool — initial commit"
 
 # Create a repo on github.com, then:
-git remote add origin https://github.com/YOUR_USERNAME/youtube-automation-tool.git
+git remote add origin https://github.com/zakir-maswani/Youtube-Automation-Agent.git
 git branch -M main
 git push -u origin main
 ```
